@@ -1,3 +1,4 @@
+import Snackbar from "@material-ui/core/Snackbar";
 import AppBar from "@material-ui/core/AppBar";
 import Box from "@material-ui/core/Box";
 import { makeStyles } from "@material-ui/core/styles";
@@ -9,6 +10,11 @@ import { saveAs } from "file-saver";
 import PropTypes from "prop-types";
 import React from "react";
 import { UiFileInputButton } from "../components/UiFileInputButton";
+import MuiAlert from "@material-ui/lab/Alert";
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -49,6 +55,11 @@ const useStyles = makeStyles((theme) => ({
 export default function IndexPage() {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
+  const [open, setOpen] = React.useState(false);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -59,12 +70,18 @@ export default function IndexPage() {
       headers: { "content-type": "multipart/form-data" },
     };
 
-    const response = await axios.post("/api/twitter", formData, config);
+    try {
+      const response = await axios.post("/api/twitter", formData, config);
 
-    const blob = new Blob([response.data.data], {
-      type: "text/csv;charset=utf-8",
-    });
-    saveAs(blob, "data.csv");
+      const blob = new Blob([response.data.data], {
+        type: "text/csv;charset=utf-8",
+      });
+      saveAs(blob, "data.csv");
+
+      return response;
+    } catch (e) {
+      setOpen(true);
+    }
   };
 
   return (
@@ -96,6 +113,11 @@ export default function IndexPage() {
       <TabPanel value={value} index={1}>
         <Typography>Coming soon</Typography>
       </TabPanel>
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert onClose={handleClose} severity="error">
+          Something went wrong!
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
