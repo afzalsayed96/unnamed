@@ -80,6 +80,12 @@ export default function IndexPage() {
         </Tabs>
       </AppBar>
       <TabPanel value={value} index={0}>
+        <Box pb={2}>
+          <Typography variant="body1" component="h1">
+            Upload a file in CSV format with <em>one and only one</em> column
+            containing the list of Twitter screen names without header
+          </Typography>
+        </Box>
         <UiFileInputButton
           label="Upload CSV File"
           name="list"
