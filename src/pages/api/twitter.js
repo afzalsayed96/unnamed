@@ -40,24 +40,31 @@ apiRoute.use(upload.single("list"));
 
 apiRoute.post(async (req, res) => {
   const list = await neatCsv(req.file.buffer, { headers: false });
-
   const numItems = list.length;
   const numApiCalls = Math.ceil(numItems / 100);
   let result = [];
 
-  for (let i = 0; i < numApiCalls; i++) {
-    let screen_name = "";
-    for (let j = 0; j < 100; j++) {
-      if (list[i * 100 + j]) screen_name += `${list[i * 100 + j]["0"]},`;
-      else break;
+  try {
+    for (let i = 0; i < numApiCalls; i++) {
+      let screen_name = "";
+      for (let j = 0; j < 100; j++) {
+        if (list[i * 100 + j]) {
+          if (list[i * 100 + j]["0"]?.trim?.()) {
+            screen_name += `${list[i * 100 + j]["0"].trim()},`;
+          }
+        } else break;
+      }
+
+      if (screen_name.trim()) {
+        const userResults = await fetchUsers(screen_name);
+        result = result.concat(userResults);
+      }
     }
-
-    const userResults = await fetchUsers(screen_name);
-
-    result = result.concat(userResults);
+  } catch (e) {
+    console.log(e);
   }
   const data = await new ObjectsToCsv(result).toString();
-  console.log(data);
+
   res.status(200).json({ data });
 });
 
