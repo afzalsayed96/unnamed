@@ -65,13 +65,13 @@ export default function IndexPage() {
     setValue(newValue);
   };
 
-  const onChange = async (formData) => {
+  const onChange = (path) => async (formData) => {
     const config = {
       headers: { "content-type": "multipart/form-data" },
     };
 
     try {
-      const response = await axios.post("/api/twitter", formData, config);
+      const response = await axios.post(path, formData, config);
 
       const blob = new Blob([response.data.data], {
         type: "text/csv;charset=utf-8",
@@ -106,12 +106,23 @@ export default function IndexPage() {
         <UiFileInputButton
           label="Upload CSV File"
           name="list"
-          onChange={onChange}
+          onChange={onChange("/api/twitter")}
           accept=".csv"
         />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        <Typography>Coming soon</Typography>
+        <Box pb={2}>
+          <Typography variant="body1" component="h1">
+            Upload a file in CSV format with <em>one and only one</em> column
+            containing the list of Instagram account handles without header
+          </Typography>
+        </Box>
+        <UiFileInputButton
+          label="Upload CSV File"
+          name="list"
+          onChange={onChange("/api/instagram")}
+          accept=".csv"
+        />
       </TabPanel>
       <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
